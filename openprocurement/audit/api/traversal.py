@@ -16,7 +16,6 @@ class Root(object):
         (Allow, Everyone, 'view_monitor'),
         (Allow, Everyone, 'revision_monitor'),
         (Allow, 'g:sas', 'create_monitor'),
-        (Allow, 'g:sas', 'edit_monitor'),
     ]
 
     def __init__(self, request):

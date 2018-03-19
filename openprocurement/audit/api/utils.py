@@ -87,7 +87,7 @@ def monitor_from_data(request, data, raise_error=True, create=True):
     return Monitor
 
 
-def extract_plan_adapter(request, monitor_id):
+def extract_monitor_adapter(request, monitor_id):
     db = request.registry.db
     doc = db.get(monitor_id)
     if doc is not None and doc.get('doc_type') == 'monitor':
@@ -103,5 +103,5 @@ def extract_plan_adapter(request, monitor_id):
 
 
 def extract_monitor(request):
-    plan_id = request.matchdict['monitor_id']
-    return extract_plan_adapter(request, plan_id)
+    monitor_id = request.matchdict['monitor_id']
+    return extract_monitor_adapter(request, monitor_id)

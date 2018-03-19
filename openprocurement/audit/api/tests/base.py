@@ -2,19 +2,9 @@
 import unittest
 import webtest
 import os
-from base64 import b64encode
 from copy import deepcopy
-from datetime import datetime, timedelta
 from openprocurement.api.constants import VERSION, SESSION
-from requests.models import Response
-from urllib import urlencode
-from uuid import uuid4
-
-now = datetime.now()
-test_monitor_data = {
-    "tenderID": "fd9cde88cef04c4a993cd635c94e861c",
-    "status": "draft",
-}
+import ConfigParser
 
 
 class PrefixedRequestClass(webtest.app.TestRequest):
@@ -35,16 +25,23 @@ class BaseWebTest(unittest.TestCase):
     def setUp(self):
         self.app = webtest.TestApp("config:tests.ini", relative_to=os.path.dirname(__file__))
         self.app.RequestClass = PrefixedRequestClass
-        self.app.authorization = ('Basic', ('token', ''))
         self.couchdb_server = self.app.app.registry.couchdb_server
         self.db = self.app.app.registry.db
+
+        config = ConfigParser.RawConfigParser()
+        config.read(os.path.join(os.path.dirname(__file__), 'auth.ini'))
+        self.broker_token = config.get("brokers", "broker")
+        self.sas_token = config.get("sas", "test_sas")
 
     def tearDown(self):
         del self.couchdb_server[self.db.name]
 
 
 class BaseMonitorWebTest(BaseWebTest):
-    initial_data = test_monitor_data
+    initial_data = {
+        "tender_id": "f" * 32,
+        "status": "draft",
+    }
 
     def setUp(self):
         super(BaseMonitorWebTest, self).setUp()
@@ -52,12 +49,15 @@ class BaseMonitorWebTest(BaseWebTest):
 
     def create_monitor(self):
         data = deepcopy(self.initial_data)
+        self.app.authorization = ('Basic', (self.sas_token, ''))
 
         response = self.app.post_json('/monitors', {'data': data})
-        plan = response.json['data']
-        self.plan_token = response.json['access']['token']
-        self.plan_id = plan['id']
+        monitor = response.json['data']
+        self.monitor_token = response.json['access']['token']
+        self.monitor_id = monitor['id']
+
+        self.app.authorization = None
 
     def tearDown(self):
-        del self.db[self.plan_id]
+        del self.db[self.monitor_id]
         super(BaseMonitorWebTest, self).tearDown()
