@@ -1,13 +1,12 @@
+from openprocurement.api.utils import get_now
+from openprocurement.api.models import Model, Revision, Document
+from openprocurement.api.models import schematics_embedded_role, schematics_default_role, IsoDateTimeType, ListType
+from schematics.types import StringType
+from schematics.types.serializable import serializable
+from schematics.types.compound import ModelType
+from schematics.transforms import whitelist, blacklist
 from couchdb_schematics.document import SchematicsDocument
 from pyramid.security import Allow
-from schematics.transforms import whitelist, blacklist
-from openprocurement.api.utils import get_now
-from openprocurement.api.models import Document
-from openprocurement.api.models import schematics_embedded_role, schematics_default_role, IsoDateTimeType, ListType
-from schematics.types import StringType, IntType, FloatType, BaseType
-from schematics.types.serializable import serializable
-from schematics.types.compound import ModelType, DictType
-from openprocurement.api.models import Model, Period, Revision
 
 
 # roles
